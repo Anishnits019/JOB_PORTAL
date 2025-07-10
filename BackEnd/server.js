@@ -5,7 +5,7 @@ import  connectDB  from './config/Mongodb.js'
 import { connectCloudinary } from './config/cloudinary.js';
 import cookieParser from 'cookie-parser';
 import companyRouter from './Routes/companyRoutes.js'
-import authRouter from './Routes/AuthRoutes.js';
+import authRouter from './Routes/authRoutes.js';
 import jobRouter from './Routes/jobRoutes.js'
 import cors from 'cors'
 import { clerkWebHooks } from './Controllers/webhooks.js';
