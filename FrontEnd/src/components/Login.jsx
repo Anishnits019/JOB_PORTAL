@@ -1,0 +1,154 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+export const Login = () => {
+  const [formData, setFormData] = useState({ name: '', email: '' });
+  const [loading, setLoading] = useState(false);
+  const [message,setMessage]=useState('')
+  const [errors, setErrors] = useState({
+    email: '',
+    form: ''
+  });
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const verifyEmailAddress = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        'http://localhost:5000/auth/send-verify-otp',
+        { 
+          email: formData.email
+        },
+        { 
+          headers: { 'Content-Type': 'application/json' } 
+        }
+      );
+      if(response.data.success){
+      navigate('/otp-verify', {
+        state: { email: formData.email }
+      });
+    }
+    } catch (err) {
+             
+    if (!err.response) {
+    // No internet or server unreachable (most common case)
+    setErrors((prev) => ({
+        ...prev,
+        form: 'Network error - please check your connection.'
+    }));
+} 
+    else if (err.response.data?.errors) {
+    // Handle validation errors (e.g., 400 Bad Request)
+    err.response.data.errors.forEach((e) => {
+        if (e.field === 'email') setErrors((prev) => ({ ...prev, email: e.message }));
+    });
+}
+    else if (err.response.status >= 500) {
+    // Server crashed (500, 503, etc.)
+    setErrors((prev) => ({
+        ...prev,
+        form: 'Server error. Please try again later.'
+    }));
+}
+     else {
+    // Other errors (401, 404, etc.)
+    setErrors((prev) => ({
+        ...prev,
+        form: 'Request failed. Please try again.'
+    }));
+}
+}
+
+  }  
+return (
+    <>
+      <div className="min-h-screen">
+        {/* Image - Visible on all screens */}
+        <div className="lg:hidden w-full px-10 py-10 flex items-center justify-center">
+          <img
+            src="/undraw_job-hunt_5umi.svg"
+            alt="Job search"
+            className="w-full h-auto rounded-2xl"
+          />
+        </div>
+        
+        <div className="hidden lg:grid grid-cols-2 mt-10 mx-40">
+          {/* Background image - only on large screens */}
+          <div className='w-[100%] p-8'>
+            <img
+              src="/undraw_job-hunt_5umi.svg" 
+              alt="AWS illustration"
+              className="hidden lg:block w-auto opacity-90 pointer-events-none h-full rounded-2xl"
+            />
+          </div>
+
+          {/* Form Column */}
+          <div className='m-8 p-8 bg-white/90 backdrop-blur-lg shadow-2xl rounded-2xl'>
+            <div className="flex justify-center my-8">
+              <h1 className="text-3xl font-bold text-indigo-700">Insider Jobs</h1>
+            </div>
+
+            <h2 className="text-xl font-bold text-center mb-6">Login</h2>
+
+            {/* Display form-level error if exists */}
+            {errors.form && (
+              <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
+                {errors.form}
+              </div>
+            )}
+
+            <div className="space-y-6">
+              {/* Name Field */}
+              
+
+             {/* Email Field */}
+              <div>
+                <h3 className="font-medium mb-2">Email</h3>
+                <input
+                  type="email"
+                  className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 ${
+                    errors.email ? 'border-red-500 ring-red-400' : 'border-gray-300 ring-indigo-400'
+                  }`}
+                  placeholder="Enter your email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                />
+                {errors.email && (
+                  <p className='text-red-500 text-sm mt-1'>{errors.email}</p>
+                )}
+              </div>
+
+              {/* Verify Button */}
+              <button 
+                className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition duration-200 disabled:opacity-70"
+                onClick={verifyEmailAddress}
+                
+              >
+                {'Verify email address'}
+              </button>
+
+              <div className="border-t border-gray-200 my-6"></div>
+
+              <p className="text-center">
+                Already have an account?{' '}
+                <a href="#" className="text-indigo-600 font-medium hover:underline">
+                  Sign in to existing AWS
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
