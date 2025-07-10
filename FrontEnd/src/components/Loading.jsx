@@ -1,8 +1,8 @@
 // components/LoadingSpinner.jsx
 export const LoadingSpinner = ({ fullPage = true }) => {
   return (
-    <div className={`flex items-center justify-center ${fullPage ? 'fixed inset-0 bg-white bg-opacity-90 z-50' : 'py-12'}`}>
-      <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-bounce"></div>
+    <div className={`flex items-center justify-center ${fullPage ? 'fixed inset-0 bg-white bg-opacity-90 z-50 pointer-events-none' : 'py-12'}`}>
+      <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
     </div>
   );
 };

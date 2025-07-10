@@ -1,4 +1,4 @@
-import {useContext} from 'react'
+import {useContext,useEffect} from 'react'
 import { assets, locations,categories,benefits,incentives,timings } from '../assets/assets'
 import { AppContext } from '../context/Appcontext'
 import { useNavigate } from 'react-router-dom'
@@ -6,19 +6,31 @@ import { JobSearch } from '../components/JobSearch'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
 import {LoadingSpinner} from '../components/Loading'
-import { JobCardSkeleton } from '../components/Loading'
+// import { JobCardSkeleton } from '../components/Loading'
+import { useState } from 'react'
 export const Joblisting = () => {
 const {isSearched,searchFilter,setSearchFilter,
   page,setPage,filteredJobs,
   handleLocationFilter,handleTimingFilter, 
   handleCategoryFilter, handleBenefitFilter, 
   handleIncentiveFilter,isloading}=useContext(AppContext)
+const [isLoading,setIsLoading]=useState(false)
 const navigate=useNavigate();
-console.log(filteredJobs)
-
+useEffect(() => {
+      setIsLoading(true)
+      const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 400) // Simulate loading time
+    
+    return () => clearTimeout(timer)
+  }, [page,
+  handleLocationFilter,handleTimingFilter, 
+  handleCategoryFilter,handleBenefitFilter, 
+  handleIncentiveFilter])
  return (
 <div className="bg-gray-50 min-h-screen">
-  <JobSearch />
+  {isLoading&&<LoadingSpinner/>}
+  <Navbar />
   
   <div className='flex w-[90%] mx-auto my-6 gap-6'>
     {/* Filters Sidebar */}
@@ -136,7 +148,7 @@ console.log(filteredJobs)
     <div className='w-[75%] '>
       <section>
         <div className='space-y-4' id="job-list">
-          {filteredJobs.length > 0 ? (
+          {filteredJobs?.length > 0 ? (
             filteredJobs.slice((page-1)*6, 6*page).map((job, index) => (
               <div 
                 key={index}
@@ -181,15 +193,17 @@ console.log(filteredJobs)
               </div>
             ))
           ) : (
-            <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
+             isLoading?(
+              <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
               <h3 className="text-lg font-medium text-gray-700 mb-2">No jobs found</h3>
               <p className="text-gray-500">Try adjusting your search filters</p>
             </div>
+             ):null
           )}
         </div>
       </section>
       <div >
-    {filteredJobs.length > 0 && (
+    {filteredJobs?.length > 0 && (
         <div className='flex justify-center items-center mt-8 mb-12 '>
           <nav className="inline-flex rounded-md shadow-sm -space-x-px">
             <button 

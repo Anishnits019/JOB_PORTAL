@@ -5,12 +5,22 @@ import { Navbar } from '../components/Navbar'
 import moment from 'moment'
 import { useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import {LoadingSpinner} from '../components/Loading'
 
 export const JobDescription = () => {
   const { id } = useParams()
   const [jobData, setJobData] = useState(null)
   const { setAppliedJobs } = useContext(AppContext)
   const navigate = useNavigate()
+  const [isLoading,setIsLoading]=useState(false)
+  useEffect(()=>{
+       setIsLoading(true)
+       const timer=setTimeout(()=>{
+             setIsLoading(false)
+       },500)
+           return () => clearTimeout(timer)
+
+  },[id,jobData])
   useEffect(()=>{
        const fetchJobDetails = async () => {
     try {
@@ -36,14 +46,11 @@ export const JobDescription = () => {
     navigate('/application-confirmation')
   }
 
-  if (!jobData) return (
-    <div className="flex justify-center items-center h-64">
-      <p className="text-gray-500">Loading job details...</p>
-    </div>
-  )
+ 
 
   return (
     <>
+      {isLoading&&<LoadingSpinner/>}
       <Navbar />
       <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
   {jobData && (
@@ -87,7 +94,7 @@ export const JobDescription = () => {
                 <span>{jobData.salary || 'Not disclosed'}</span>
               </div>
               <div className="flex items-center text-gray-600">
-                <img src={assets.experience_icon} className="w-4 h-4 mr-1" />
+                <img src={assets.suitcase_icon} className="w-4 h-4 mr-1" />
                 <span>{jobData.experience || 'Not specified'}</span>
               </div>
               <div className="flex items-center text-gray-600">
