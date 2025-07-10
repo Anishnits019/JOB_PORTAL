@@ -1,5 +1,4 @@
 import express from 'express'
-// import '../config/Instrument.js'
 import 'dotenv/config';
 import  connectDB  from './config/Mongodb.js'
 import { connectCloudinary } from './config/cloudinary.js';
@@ -26,7 +25,7 @@ app.use(cors({
     credentials: true, 
     origin:allowedOrigins
 }));
-
+app.get('/', (req, res)=> res.send('Server is Live!'))
 app.use('/company',companyRouter)
 app.use('/auth',authRouter)
 app.use('/job',jobRouter)
