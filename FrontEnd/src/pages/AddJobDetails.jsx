@@ -9,6 +9,7 @@ export const AddJobDetails = () => {
   const navigate = useNavigate();
   const {jobId}=useParams();
   const { addJob, setAddJob } = useContext(AppContext);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const categories={
     FullTime: 'Full Time',
     Permanent: 'Permanent',
@@ -84,7 +85,7 @@ export const AddJobDetails = () => {
   };
 
   const handleContinue = async () => {
-    console.log(addJob)
+    setIsSubmitting(true);
     try {
       const response = await axios.patch(
         `http://localhost:5000/company/job/${jobId}/details`,
@@ -102,6 +103,9 @@ export const AddJobDetails = () => {
       } 
     } catch (err) {
       console.error('Error saving job:', err);
+    }
+    finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -228,14 +232,29 @@ export const AddJobDetails = () => {
             </div>
 
             {/* Submit */}
-            <div className="mt-8">
-              <button
-                className="py-3 px-4 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition duration-200"
-                onClick={handleContinue}
-              >
-                Continue
-              </button>
-            </div>
+            
+             <div className="pt-4">
+        <button
+          type="button"
+          onClick={handleContinue}
+          disabled={isSubmitting}
+          className={`py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition duration-200 flex items-center justify-center ${
+            isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
+          }`}
+        >
+          {isSubmitting ? (
+            <>
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Processing...
+            </>
+          ) : (
+            'Continue'
+          )}
+        </button>
+      </div>
           </div>
         </div>
       </div>

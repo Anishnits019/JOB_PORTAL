@@ -3,7 +3,60 @@ import transporter from '../config/nodemailer.js';
 import verifyModel from '../Models/CompanyVerify.js';
 import bcrypt from 'bcrypt'
 import companyModel from'../Models/Company.js'
+export const employerLogin=async(req,res)=>{
+    const {email,password}=req.body
+    if(!email || !password){
+        return res.status(400).json({succes:'false',message:'Please fill the required details'})
+    }
+    try{
+    const company=await companyModel.findOne({email});
+    if(!company){
+         return res.json({succes:'false',message:'User did not exist'})
+    }
 
+       const ispasswordMatch=await bcrypt.compare(password,company.password);
+
+       if(!ispasswordMatch){
+         return res.json({succes:'false',message:'password is wrong'})
+       }
+  
+       const token=jwt.sign({id:company._id},process.env.JWT_SECRET_KEY,{expiresIn:'7d'});
+
+       res.cookie('token', token, {
+     httpOnly: true,
+     sameSite: 'lax', 
+     secure: false, 
+     maxAge: 24 * 60 * 60 * 1000
+     });
+       return res.json({
+        success:true,
+        company:{
+            _id:company._id,
+            name:company.name,
+            email:company.email,
+            image:company.image,
+        }
+      })
+      
+    }catch(error){
+        return res.json({succes:'false',message:error.message})
+    }
+
+}
+export const logout=async(req,res)=>{
+    try{
+        res.clearCookie('token',{
+            httpOnly:true,
+            secure:"lax",
+            sameSite:"true",
+        })
+        return res.json({sucess:true,message:'Logged Out'})
+    }
+    catch(error){
+                res.json({success:false,message:'Missing Details'})
+
+        }
+}
 export const sendVerifyOtp = async (req, res) => {
   try {
     const { email } = req.body;
@@ -12,16 +65,7 @@ export const sendVerifyOtp = async (req, res) => {
     const otp = String(Math.floor(100000 + Math.random() * 900000));
     
     // Get existing data first
-    const existingData = await redis.hgetall(`user-session:${email}`);
-    
-    // Set only OTP while preserving other fields
-    await redis.hset(`user-session:${email}`, {
-      ...existingData,
-      email,  // Maintain email
-      otp     // Only update OTP
-    });
-
-    await redis.expire(`user-session:${email}`, 600); // 5 min
+      await redis.set(`otp:${email}`, otp, { ex: 300 }); // 5 minutes
 
     // Email sending remains same
     await transporter.sendMail({
@@ -47,17 +91,19 @@ export const verifyEmail = async (req, res) => {
   if (!otp || !email ) return res.status(400).json({ success: false, message: 'Email and OTP required' });
 
  
-  const userData = await redis.hgetall(`user-session:${email}`);
-
-  if (!userData.otp) return res.status(404).json({ 
+   const storedOTP = await redis.get(`otp:${email}`);
+  if (!storedOTP) return res.status(404).json({ 
     success: false, 
     message: 'OTP expired or not found' });
 
-  if (userData.otp !== otp) { 
-    return res.status(401).json(
-      { success: false,
-      message: 'Invalid OTP' });
-  }
+  if (storedOTP !== otp.toString()) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Invalid OTP' 
+      });
+    }
+     await redis.del(`otp:${email}`);
+
   return res.json({ 
         success: true, 
         message: 'OTP  successfully',

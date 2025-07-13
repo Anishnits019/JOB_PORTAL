@@ -2,7 +2,7 @@ import React from 'react'
 import { assets } from '../assets/assets'
 export const Footer = () => {
   return (
-    <div className='flex flex-row justify-between p-4'>
+    <div className='flex flex-row justify-between p-4 mt-20'>
     <div >
       <img src={assets.logo}/>
       <p>Copy Right @GreatStack.dev|| All right reserved</p>

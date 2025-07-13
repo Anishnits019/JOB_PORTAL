@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-export const Login = () => {
-  const [formData, setFormData] = useState({ name: '', email: '' });
+export const EmployerLogin = () => {
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [message,setMessage]=useState('')
   const [errors, setErrors] = useState({
@@ -20,22 +20,21 @@ export const Login = () => {
     }
   };
 
-  const verifyEmailAddress = async () => {
+  const LoginEmployee = async () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        'http://localhost:5000/auth/send-verify-otp',
+        'http://localhost:5000/auth/employeer-login',
         { 
-          email: formData.email
+          email: formData.email,
+          password:formData.password
         },
         { 
           headers: { 'Content-Type': 'application/json' } 
         }
       );
       if(response.data.success){
-      navigate('/otp-verify', {
-        state: { email: formData.email }
-      });
+      navigate('/dashboard')
     }
     } catch (err) {
              
@@ -75,7 +74,7 @@ return (
         {/* Image - Visible on all screens */}
         <div className="lg:hidden w-full px-10 py-10 flex items-center justify-center">
           <img
-            src="/undraw_job-hunt_5umi.svg"
+            src="/undraw_secure-login_m11a.svg"
             alt="Job search"
             className="w-full h-auto rounded-2xl"
           />
@@ -85,7 +84,7 @@ return (
           {/* Background image - only on large screens */}
           <div className='w-[100%] p-8'>
             <img
-              src="/undraw_job-hunt_5umi.svg" 
+              src="/undraw_secure-login_m11a.svg" 
               alt="AWS illustration"
               className="hidden lg:block w-auto opacity-90 pointer-events-none h-full rounded-2xl"
             />
@@ -127,23 +126,42 @@ return (
                   <p className='text-red-500 text-sm mt-1'>{errors.email}</p>
                 )}
               </div>
+              <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                Password
+              </label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 ${
+                  errors.password ? 'border-red-500 focus:ring-red-400' : 'border-gray-300 focus:ring-blue-400'
+                }`}
+                placeholder="••••••••"
+              />
+              {errors.password && (
+                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+              )}
+            </div>
 
               {/* Verify Button */}
               <button 
                 className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition duration-200 disabled:opacity-70"
-                onClick={verifyEmailAddress}
-                
+                onClick={LoginEmployee}
               >
-                {'Verify email address'}
+                {'Login'}
               </button>
 
               <div className="border-t border-gray-200 my-6"></div>
 
               <p className="text-center">
-                Already have an account?{' '}
-                <a href="/employer-login" className="text-indigo-600 font-medium hover:underline">
-                  Sign in to existing AWS
-                </a>
+                Doesn't  have an account?{' '}
+                <button 
+                onClick={()=>(navigate('/employer-signup'))} className="text-indigo-600 font-medium hover:underline">
+                  Create a new account
+                </button>
               </p>
             </div>
           </div>

@@ -156,6 +156,7 @@ export const AddJobs = () => {
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
             rows={5}
+            minLength={30}
             required
           />
         </div>
@@ -177,6 +178,7 @@ export const AddJobs = () => {
             </label>
             <input
               name="city"
+              type="text"
               value={addJob.location?.city || ''}
               onChange={handleChange}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
@@ -189,6 +191,7 @@ export const AddJobs = () => {
               Area
             </label>
             <input
+              type="text"
               name="area"
               value={addJob.location?.area || ''}
               onChange={handleChange}
@@ -201,9 +204,11 @@ export const AddJobs = () => {
               Pin Code
             </label>
             <input
+              type="number"
               name="pinCode"
               value={addJob.location?.pinCode || ''}
               onChange={handleChange}
+              length={6}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
             />
           </div>

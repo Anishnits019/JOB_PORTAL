@@ -2,6 +2,7 @@ import React, { useState,useContext } from 'react';
 import { AppContext } from '../context/Appcontext';
 import {useNavigate,useParams} from 'react-router-dom'
  import {Navbar} from '../components/Navbar' 
+ import { Footer } from '../components/Footer';
  import axios from 'axios';
   export const JobDescriptionEditor = () => {
   const { addJob,setAddJob } = useContext(AppContext);
@@ -10,7 +11,8 @@ import {useNavigate,useParams} from 'react-router-dom'
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
- 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const handleFormat = (type) => {
     switch (type) {
       case 'bold':
@@ -35,6 +37,7 @@ import {useNavigate,useParams} from 'react-router-dom'
     return style.trim();
   };
   const handleContinue = async() => {
+        setIsSubmitting(true);
     const response=await axios.patch(`http://localhost:5000/company/job/${jobId}/edit`,
     {jobData: addJob,  
          jobId: jobId 
@@ -102,12 +105,30 @@ import {useNavigate,useParams} from 'react-router-dom'
         <button className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
           Cancel
         </button>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-         onClick={handleContinue}>
-          Save Description
+       
+        <button
+          type="button"
+          onClick={handleContinue}
+          disabled={isSubmitting}
+          className={`py-3 px-6 bg-black  text-white font-medium rounded-lg transition duration-200 flex items-center justify-center ${
+            isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
+          }`}
+        >
+          {isSubmitting ? (
+            <>
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Processing...
+            </>
+          ) : (
+            'Save Description'
+          )}
         </button>
       </div>
     </div>
+    <Footer/>
     </>
   );
 };

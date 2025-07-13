@@ -13,6 +13,7 @@ import {Category} from '../components/Category'
 import {Timings} from '../components/Timings'
 import {Hiring} from '../components/Hiring'
 import {Footer} from '../components/Footer'
+import { Navbar } from '../components/Navbar';
 export const Review = () => {
  const {jobId}=useParams()
  const navigate=useNavigate()
@@ -425,7 +426,8 @@ export const Review = () => {
 
   return (
     <>
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
+    <Navbar/>
+    <div className="max-w-4xl mx-auto p-6 border border-black rounded-md bg-white rounded-lg shadow-md mt-20">
         {openPopUp()}
       <h1 className="text-3xl font-bold mb-6">Job Posting Review</h1>
       
@@ -433,7 +435,7 @@ export const Review = () => {
         {/* Job Title */}
         <div className="flex justify-between">
           <dt className="font-medium text-gray-700 min-w-[120px]">Job Title:</dt>
-          <dd><span className="text-gray-400">{addJob.title}</span></dd>
+          <dd>{addJob.title}</dd>
         <RenderFunction keyName="title" />
         </div>
 
@@ -455,7 +457,7 @@ export const Review = () => {
         <div className="flex justify-between">
           <dt className="font-medium text-gray-700 min-w-[120px]">Job Type:</dt>
           <dd>
-            <span className="text-gray-400">{addJob.category}</span>
+           {addJob.category}
           </dd>
           <RenderFunction keyName="category" />
         </div>
@@ -464,7 +466,7 @@ export const Review = () => {
         <div className="flex justify-between">
           <dt className="font-medium text-gray-700 min-w-[120px]">Work Schedule:</dt>
           <dd>
-            <span className="text-gray-400">{addJob.timings}</span>
+            {addJob.timings}
           </dd>
         <RenderFunction keyName="timings" />
 
@@ -473,7 +475,7 @@ export const Review = () => {
         {/* Recruitment  */}
         <div className="flex justify-between">
           <dt className="font-medium text-gray-700 min-w-[120px]">Hiring Timeline:</dt>
-          <dd><span className="text-gray-400">Not specified</span></dd>
+          <dd>{addJob.recuritment || 'not specified'}</dd>
         <RenderFunction keyName="recruitment" />
         </div>
 
@@ -481,7 +483,7 @@ export const Review = () => {
         <div className="flex justify-between">
           <dt className="font-medium text-gray-700 min-w-[120px]">Incentives:</dt>
           <dd>
-            <span className="text-gray-400">{addJob.incentives}</span>
+            {addJob.incentives || 'not specified'}
           </dd>
           <RenderFunction keyName="incentives" />
         </div>
@@ -490,7 +492,7 @@ export const Review = () => {
         <div className="flex justify-between">
           <dt className="font-medium text-gray-700 min-w-[120px]">Benefits:</dt>
           <dd>
-            <span className="text-gray-400">{addJob.benefits}</span>
+            {addJob.benefits || 'not specified'}
           </dd>
         <RenderFunction keyName="benefits" />
 
@@ -498,7 +500,7 @@ export const Review = () => {
         <div className="flex justify-between">
           <dt className="font-medium text-gray-700 min-w-[120px]">Description:</dt>
           <dd className="whitespace-pre-line">
-            <span className="text-gray-400">{addJob.description}</span>
+            {addJob.description || 'not specified'}
           </dd>
           <RenderFunction keyName="description" />
         </div>
@@ -515,8 +517,7 @@ export const Review = () => {
               onClick={handleChange}
               className="px-6 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5"
             >
-              Save 
-              
+              Confirm
             </button>
           </div>
         

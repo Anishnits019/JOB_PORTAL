@@ -18,7 +18,7 @@ export const OtpVerify = () => {
   useEffect(() => {
     // Check if email exists in state (prevent direct access)
     if (!location.state?.email) {
-      navigate('/login', { replace: true });
+      navigate('employer-signup', { replace: true });
       return;
     }
 

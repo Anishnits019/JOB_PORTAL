@@ -74,60 +74,7 @@ export const verifyAndRegister = async (req, res) => {
     });
   }
 };
-export const login=async(req,res)=>{
-    const {email,password}=req.body
-    if(!email || !password){
-        return res.status(400).json({succes:'false',message:'Please fill the required details'})
-    }
-    try{
-    const company=await companyModel.findOne({email});
-    if(!company){
-         return res.json({succes:'false',message:'User did not exist'})
-    }
 
-       const ispasswordMatch=await bcrypt.compare(password,company.password);
-
-       if(!ispasswordMatch){
-         return res.json({succes:'false',message:'password is wrong'})
-       }
-  
-       const token=jwt.sign({id:company._id},process.env.JWT_SECRET_KEY,{expiresIn:'7d'});
-
-       res.cookie('token', token, {
-     httpOnly: true,
-     sameSite: 'lax', 
-     secure: false, 
-     maxAge: 24 * 60 * 60 * 1000
-     });
-       return res.json({
-        success:true,
-        company:{
-            _id:company._id,
-            name:company.name,
-            email:company.email,
-            image:company.image,
-        }
-      })
-      
-    }catch(error){
-        return res.json({succes:'false',message:error.message})
-    }
-
-}
-export const logout=async(req,res)=>{
-    try{
-        res.clearCookie('token',{
-            httpOnly:true,
-            secure:"lax",
-            sameSite:"true",
-        })
-        return res.json({sucess:true,message:'Logged Out'})
-    }
-    catch(error){
-                res.json({success:false,message:'Missing Details'})
-
-        }
-}
 export const addjobid=async(req,res)=>{
   const {jobId}=req.body
   try{

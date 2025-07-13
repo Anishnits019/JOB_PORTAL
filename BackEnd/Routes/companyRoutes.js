@@ -1,13 +1,11 @@
 import express from 'express'
-import { verifyAndRegister,logout,login,addjobid,addjob,addjobdetails,addjobpay,addjobdetaileddescription,getjobdata,getjobtitles,getlocation,editjobdata,postjob,managejob } from "../Controllers/CompanyController.js"
+import { verifyAndRegister,addjobid,addjob,addjobdetails,addjobpay,addjobdetaileddescription,getjobdata,getjobtitles,getlocation,editjobdata,postjob,managejob } from "../Controllers/CompanyController.js"
 import {protectCompany} from '../Middleware/company_middleware.js'
 // import upload from '../Middleware/multer.js';
 
 const  companyRouter=express.Router()
 
 companyRouter.post('/verifyandregister',verifyAndRegister);
-companyRouter.post('/login',login)
-companyRouter.post('/logout',logout)
 companyRouter.patch('/add-job-id',addjobid)
 companyRouter.get('/job/jobtitles',getjobtitles)
 companyRouter.get('/job/areas',getlocation)

@@ -3,12 +3,14 @@ import React, { useContext, useState, } from 'react';
 import {useNavigate,useParams} from 'react-router-dom'
 import { AppContext } from '../context/Appcontext';
 import {Navbar} from '../components/Navbar'
+import {Footer} from '../components/Footer'
 import axios from 'axios'
 export const AddPay = () => {
   const navigate =useNavigate()
   const {jobId}=useParams()
   const { addJob,setAddJob  } = useContext(AppContext);
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const benefits={
   healthInsurance: 'Health insurance',
   providentFund: 'Provident Fund',
@@ -73,8 +75,8 @@ export const AddPay = () => {
     }));
   }; 
   const handleContinue=async(e)=>{
-    console.log(addJob)
-    try {
+      setIsSubmitting(true); 
+         try {
       const response = await axios.patch(
         `http://localhost:5000/company/job/${jobId}/benefits`,
          {jobData:addJob,
@@ -96,7 +98,7 @@ export const AddPay = () => {
   return (
     <>
     <Navbar/>
-   <div className="w-[60%] mx-auto p-6 bg-white rounded-lg">
+   <div className="w-[60%] mx-auto p-6 mb-20 bg-white rounded-lg relative">
     
     <div className="min-h-screen mt-9">
     <h1 className="text-4xl p-6 font-medium ">Add pay and benefits</h1>
@@ -238,40 +240,33 @@ export const AddPay = () => {
 </div>
         </div>
 
-        {/* Job Details Section */}
-        
-
         {/* Submit Button */}
-        <div className="mt-8 flex justify-between ">
-            <button
-            className=" py-3 px-4 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition duration-200 "
-            
-          ><span className='block flex gap-4'>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-  <line x1="21" y1="12" x2="3" y2="12"/> {/* Line */}
-  <polyline points="9 18 3 12 9 6"/>       {/* Arrowhead */}
-</svg>
-            Back
-            </span>
-          </button>
-          <button
-            className=" py-3 px-4 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition duration-200"
-            onClick={handleContinue}
-            
-          >
-            <span className="block flex gap-4 ">
-            Continue
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-  <line x1="3" y1="12" x2="21" y2="12" /> {/* Horizontal line */}
-  <polyline points="15 6 21 12 15 18" />  {/* Arrow head */}
-</svg>
-            </span>
-          </button>
-        </div>
+        
+        <button
+          type="button"
+          onClick={handleContinue}
+          disabled={isSubmitting}
+          className={`py-3 px-6 bg-black  text-white font-medium rounded-lg transition duration-200 flex items-center justify-center absolute right-10 ${
+            isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
+          }`}
+        >
+          {isSubmitting ? (
+            <>
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Processing...
+            </>
+          ) : (
+            'Continue'
+          )}
+        </button>
       </div>
 
     </div>
   </div>
+  <Footer/>
   </>
 );
 };

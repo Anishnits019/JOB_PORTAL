@@ -20,6 +20,7 @@ import {AddJobPage} from './pages/AddJobPage'
 import {JobDescriptionEditor} from './pages/JobDescriptionEditor'
 import {Review} from './pages/Review'
 import { JobDescription } from './pages/JobDescription'
+import {EmployerLogin} from './pages/EmployerLogin'
 const App = () => {
   return (
     <div>
@@ -27,12 +28,13 @@ const App = () => {
         <Route path ="/" element ={<Home/>}/>
         <Route path="/search-jobs" element={<Joblisting/>}/>
         <Route path ="/applications" element={<Application/>}/>
+        <Route path ="/employer-login" element={<EmployerLogin/>}/>
         <Route path="/job/:id/description" element={<JobDescription/>}/>
         <Route path="/job/:id/apply-job" element={<ApplyJob/>}/>
         <Route path='/add_jobs' element={<AddJobs/>}></Route>
         <Route path='/manage_jobs' element={<ManageJobs/>}></Route>
         <Route path='/view_jobs' element={<ViewApplications/>}></Route>
-        <Route path='/login' element={<Login/>}></Route>
+        <Route path='/employer-signup' element={<Login/>}></Route>
          <Route path='/otp-verify' element={<OtpVerify/>}></Route>
         <Route path='/verify-company' element={<CompanyVerify/>}></Route>
         <Route path='/set-password' element={<SetPassword/>}></Route>
