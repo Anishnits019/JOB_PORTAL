@@ -10,7 +10,7 @@ import jwt from 'jsonwebtoken'
 import redis from '../config/redis.js';
 
 export const verifyAndRegister = async (req, res) => {
-  const { email, CIN, PAN } = req.body;
+  const { email, CIN, PAN, sessionId } = req.body;
   console.log(req.body)
   try {
     
@@ -25,7 +25,7 @@ export const verifyAndRegister = async (req, res) => {
       });
     }
 
-    const hashedPassword = await redis.hget(`user-session:${email}`, 'password');
+    const hashedPassword = await redis.hget(`user-session:${sessionId}`, 'password');
 
     if (!hashedPassword) {
       return res.status(400).json({

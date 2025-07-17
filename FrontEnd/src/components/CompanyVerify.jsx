@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import {useLocation,useNavigate } from 'react-router-dom';
+import {useLocation,useNavigate,useSearchParams } from 'react-router-dom';
 export const CompanyVerify = () => {
+  const [searchParams] = useSearchParams();
+  const sessionId = searchParams.get('sessionId');
+  console.log(sessionId)
   const { state } = useLocation();
   const navigate = useNavigate();
   
@@ -36,7 +39,8 @@ export const CompanyVerify = () => {
 
         { CIN:credentials.CIN, 
           PAN:credentials.PAN,
-          email:state?.email
+          email:state?.email,
+          sessionId:sessionId
         },
         { headers: { 'Content-Type': 'application/json' } }
 

@@ -12,7 +12,7 @@ import {Login}from './components/Login'
 import 'quill/dist/quill.snow.css'
 import {OtpVerify} from './components/OtpVeify'
 import {CompanyVerify} from './components/CompanyVerify'
-import { SetPassword } from './components/setPassword'
+import {SetPassword } from './components/setPassword'
 import {AddJobDetails} from './pages/AddJobDetails'
 import {AddPay} from './pages/AddPay'
 import {AddJobPage} from './pages/AddJobPage'
@@ -28,14 +28,14 @@ const App = () => {
         <Route path ="/" element ={<Home/>}/>
         <Route path="/search-jobs" element={<Joblisting/>}/>
         <Route path ="/applications" element={<Application/>}/>
-        <Route path ="/employer-login" element={<EmployerLogin/>}/>
+        <Route path ="/employer_login" element={<EmployerLogin/>}/>
         <Route path="/job/:id/description" element={<JobDescription/>}/>
         <Route path="/job/:id/apply-job" element={<ApplyJob/>}/>
         <Route path='/add_jobs' element={<AddJobs/>}></Route>
         <Route path='/manage_jobs' element={<ManageJobs/>}></Route>
         <Route path='/view_jobs' element={<ViewApplications/>}></Route>
         <Route path='/employer-signup' element={<Login/>}></Route>
-         <Route path='/otp-verify' element={<OtpVerify/>}></Route>
+        <Route path='/otp-verify' element={<OtpVerify/>}></Route>
         <Route path='/verify-company' element={<CompanyVerify/>}></Route>
         <Route path='/set-password' element={<SetPassword/>}></Route>
         <Route path='/job/:jobId' element={<AddJobs/>}></Route>

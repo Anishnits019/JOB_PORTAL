@@ -6,15 +6,15 @@ import {protectCompany} from '../Middleware/company_middleware.js'
 const  companyRouter=express.Router()
 
 companyRouter.post('/verifyandregister',verifyAndRegister);
-companyRouter.patch('/add-job-id',addjobid)
+companyRouter.patch('/add-job-id',protectCompany,addjobid)
 companyRouter.get('/job/jobtitles',getjobtitles)
 companyRouter.get('/job/areas',getlocation)
-companyRouter.patch('/job/:id',addjob)
-companyRouter.patch('/job/:id/details',addjobdetails)
-companyRouter.patch('/job/:id/benefits',addjobpay)
-companyRouter.patch('/job/:id/edit',addjobdetaileddescription)
-companyRouter.get('/job/:id',getjobdata)
-companyRouter.patch('/job/:id/edit-job',editjobdata)
+companyRouter.patch('/job/:id',protectCompany,addjob)
+companyRouter.patch('/job/:id/details',protectCompany,addjobdetails)
+companyRouter.patch('/job/:id/benefits',protectCompany,addjobpay)
+companyRouter.patch('/job/:id/edit',protectCompany,addjobdetaileddescription)
+companyRouter.get('/job/:id',protectCompany,getjobdata)
+companyRouter.patch('/job/:id/edit-job',protectCompany,editjobdata)
 companyRouter.post('/job/:id/post-job',postjob)
 
 companyRouter.get('/manage-jobs',protectCompany,managejob)

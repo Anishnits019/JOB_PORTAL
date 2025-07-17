@@ -4,8 +4,9 @@ import companyModel from '../Models/Company.js'; // Adjust path as needed
 
 export const protectCompany=async(req,res,next)=>{
       const {token}=req.cookies
+      console.log(token)
       if(!token){
-          return res.status(401).json({ // Added HTTP status code
+          return res.status(401).json({ 
             success: false,
             message: 'Authorization token missing. Please login again.'
         });

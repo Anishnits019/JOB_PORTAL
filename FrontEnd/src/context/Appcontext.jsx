@@ -170,10 +170,7 @@ export const AppContextProvider=(props)=>{
   }
 
     }
-    
-    
-   
-     const searchJobs=async(title,city)=>{
+    const searchJobs=async(title,city)=>{
       
        const response =await axios.post(`http://localhost:5000/job/getjob`,
           {
@@ -187,16 +184,13 @@ export const AppContextProvider=(props)=>{
           setFilteredJobs(response.data.job)
           console.log(response.data.job)
         }
-        }
-            
-
-        useEffect(() => {
+    }
+    useEffect(() => {
         if (jobs.length > 0 && !isSearched) {
         setFilteredJobs(jobs);
        }
-       }, [jobs, isSearched]);
-
-       useEffect(() => {
+    }, [jobs, isSearched]);
+    useEffect(() => {
        if (searchFilter.title === "" && searchFilter.location === "") {
         setFilteredJobs(jobs);
          setIsSearched(false);

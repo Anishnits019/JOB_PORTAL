@@ -1,10 +1,12 @@
 
 import React, { useContext, useState,useEffect} from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation,useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { AppContext } from '../context/Appcontext';
 
 export const SetPassword= () => {
+  const [searchParams] = useSearchParams();
+  const sessionId = searchParams.get('sessionId');
   const location  = useLocation();
   const navigate = useNavigate();
   const { formData } = useContext(AppContext);
@@ -21,7 +23,7 @@ export const SetPassword= () => {
   }
   useEffect(() => {
       if (!location.state?.email) {
-        navigate('/login', { replace: true });
+        navigate('/employer-signup', { replace: true });
         return;
       }
   
@@ -34,11 +36,11 @@ export const SetPassword= () => {
     try {
       const response=await axios.post(
         'http://localhost:5000/auth/set-password',
-        { password:password, email:email},
+        { password:password, email:email,sessionId:sessionId},
         { headers: { 'Content-Type': 'application/json' } }
       );
       if(response.data.success){
-      navigate('/verify-company', {
+      navigate(response.data.nextStep, {
         state: { email: email },
           replace: true
 

@@ -54,7 +54,7 @@ export function Navbar() {
         ) : (
           <div className='flex gap-3'>
             <button
-              onClick={() => navigate('/employer-login')}
+              onClick={() => navigate('/employer_login')}
               className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md transition-colors border border-gray-300"
             >
               Employer Login

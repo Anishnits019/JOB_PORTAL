@@ -56,7 +56,7 @@ export const otp_validation = async (req, res, next) => {
   }).options({ 
      abortEarly: false, 
      stripUnknown: true,
-    allowUnknown: true  // This allows other fields to pass through
+     allowUnknown: true  // This allows other fields to pass through
 
     });
 

@@ -1,9 +1,12 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation,useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { AppContext } from '../context/Appcontext';
 
 export const OtpVerify = () => {
+  const [searchParams] = useSearchParams();
+  const sessionId = searchParams.get('sessionId');
+  console.log(sessionId)
   const location = useLocation();
   const navigate = useNavigate();
   const { formData } = useContext(AppContext);
@@ -39,11 +42,11 @@ export const OtpVerify = () => {
     try {
       const response =await axios.post(
         'http://localhost:5000/auth/verify-email',
-        { otp: otp, email: email },
+        { otp: otp, email: email ,sessionId:sessionId },
         { headers: { 'Content-Type': 'application/json' } }
       );
        if(response.data.success){
-      navigate('/set-password', {
+      navigate(response.data.nextStep, {
         state: { email:email },
         replace: true
       });

@@ -3,6 +3,8 @@ import transporter from '../config/nodemailer.js';
 import verifyModel from '../Models/CompanyVerify.js';
 import bcrypt from 'bcrypt'
 import companyModel from'../Models/Company.js'
+import { v4 as uuidv4 } from 'uuid';
+import jwt from 'jsonwebtoken'
 export const employerLogin=async(req,res)=>{
     const {email,password}=req.body
     if(!email || !password){
@@ -22,7 +24,7 @@ export const employerLogin=async(req,res)=>{
   
        const token=jwt.sign({id:company._id},process.env.JWT_SECRET_KEY,{expiresIn:'7d'});
 
-       res.cookie('token', token, {
+     res.cookie('token', token, {
      httpOnly: true,
      sameSite: 'lax', 
      secure: false, 
@@ -30,16 +32,11 @@ export const employerLogin=async(req,res)=>{
      });
        return res.json({
         success:true,
-        company:{
-            _id:company._id,
-            name:company.name,
-            email:company.email,
-            image:company.image,
-        }
+         token:token
       })
       
     }catch(error){
-        return res.json({succes:'false',message:error.message})
+        return res.json({succes:'false',err:error.message})
     }
 
 }
@@ -62,12 +59,21 @@ export const sendVerifyOtp = async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ success: false, message: 'Email is required' });
 
-    const otp = String(Math.floor(100000 + Math.random() * 900000));
-    
-    // Get existing data first
-      await redis.set(`otp:${email}`, otp, { ex: 300 }); // 5 minutes
+    const cleanEmail = email.toLowerCase().trim();
 
-    // Email sending remains same
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const sessionId = uuidv4();
+  
+      await redis.hset(`user-session:${sessionId}`, {
+      email: cleanEmail,
+      otp,
+      verified: 'false',
+      otpSentAt: new Date().toISOString(),
+    });
+
+    await redis.expire(`user-session:${sessionId}`, 3600);
+
     await transporter.sendMail({
       from: process.env.SENDER_EMAIL,
       to: email,
@@ -77,8 +83,9 @@ export const sendVerifyOtp = async (req, res) => {
 
       return res.json({ 
         success: true, 
+        sessionId,
         message: 'OTP sent successfully',
-        nextStep: '/otp-verify' 
+        nextStep: `/otp-verify?sessionId=${sessionId}` 
       });
   } catch (err) {
     console.error('Send OTP Error:', err);
@@ -86,67 +93,102 @@ export const sendVerifyOtp = async (req, res) => {
   }
 }
 export const verifyEmail = async (req, res) => {
-  const {email,otp}=req.validatedData
+  try {
+    // Use req.body if validatedData is not available
+    const { email, otp } = req.validatedData || req.body;
+    const {sessionId} =req.body
+    console.log(email)
+    console.log(otp)
+    console.log(sessionId)
+    
+    if (!otp || !email || !sessionId) {  // Added sessionId check
+      return res.status(400).json({ success: false, message: 'Email, OTP, and Session ID are required' });
+    }
 
-  if (!otp || !email ) return res.status(400).json({ success: false, message: 'Email and OTP required' });
+    const cleanOtp = otp.toString().trim(); // Ensure OTP is string and trimmed
 
- 
-   const storedOTP = await redis.get(`otp:${email}`);
-  if (!storedOTP) return res.status(404).json({ 
-    success: false, 
-    message: 'OTP expired or not found' });
+    const storedOTP = await redis.hget(`user-session:${sessionId}`, 'otp');
+    
+    console.log('Stored OTP:', storedOTP, "(Type:", typeof storedOTP + ")");
 
-  if (storedOTP !== otp.toString()) {
+    if (!storedOTP) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'OTP expired or not found' 
+      });
+    }
+
+    // Compare strictly (both should be strings)
+    if (storedOTP.toString().trim() !== cleanOtp) {
       return res.status(401).json({ 
         success: false, 
         message: 'Invalid OTP' 
       });
     }
-     await redis.del(`otp:${email}`);
 
-  return res.json({ 
-        success: true, 
-        message: 'OTP  successfully',
-        nextStep: '/set-password' 
-      });
+    // Delete the correct key (user-session instead of otp)
+    await redis.hdel(`user-session:${sessionId}`,'otp');  // Fixed key
+
+    return res.json({ 
+      success: true, 
+      message: 'OTP verified successfully',
+      nextStep: `/set-password?sessionId=${sessionId}` 
+    });
+  } catch (err) {
+    console.error('Verify OTP Error:', err);
+    return res.status(500).json({ success: false, message: err.message });
+  }
 };
 export const setPassword = async (req, res) => {
-  const { email, password } = req.validatedData;
-  if (!email || !password) {
-    return res.status(400).json({
-      success: false,
-      message: 'password are required',
-    });
-  }
-
   try {
-    // Get ALL existing fields first
-    const userData = await redis.hgetall(`user-session:${email}`);
-
-    if (userData.password) {
-      return res.status(400).json({
-        success: false,
-        message: 'Password already set',
+    const { email, password } = req.validatedData || req.body;
+    const {sessionId} =req.body
+    if (!email || !password || !sessionId) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Email and password are required' 
       });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const cleanEmail = email.toLowerCase().trim();
 
-    // Update while preserving existing data
-    await redis.hset(`user-session:${email}`, {
-      ...userData,          // Keep all existing fields
-      password: hashedPassword,  // Add new password
-      passwordSet: 'true'    // Add flag
+    // Check if user exists (optional, if you track users in Redis)
+    const userExists = await redis.exists(`user-session:${sessionId}`);
+    if (!userExists) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'User not found. Verify email first.' 
+      });
+    }
+
+    // Check if password already set
+    const currentPassword = await redis.hget(`user-session:${sessionId}`, 'password');
+    if (currentPassword) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Password already set' 
+      });
+    }
+
+    // Hash and store password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await redis.hset(`user-session:${sessionId}`, {
+      password: hashedPassword,
+      passwordSet: 'true',
+      updatedAt: new Date().toISOString(),
     });
 
-    return res.status(200).json({
-      success: true,
+    return res.status(200).json({ 
+      success: true, 
       message: 'Password set successfully',
+      nextStep: `/verify-company?sessionId=${sessionId}` 
+
     });
   } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: 'Internal server error',
+    console.error('SetPassword Error:', err);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Internal server error' 
     });
   }
 };
@@ -159,7 +201,7 @@ export const AuthState = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Company not found' });
     }
 
-    res.json({ success: true, company }); // ✅ Now matches frontend expectation
+    res.json({ success: true, company });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

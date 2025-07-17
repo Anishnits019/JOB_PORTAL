@@ -33,7 +33,7 @@ export const Login = () => {
         }
       );
       if(response.data.success){
-      navigate('/otp-verify', {
+      navigate(response.data.nextStep, {
         state: { email: formData.email }
       });
     }

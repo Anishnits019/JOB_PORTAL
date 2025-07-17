@@ -51,7 +51,8 @@ export const AddJobs = () => {
       const response = await axios.patch(
         `http://localhost:5000/company/job/${jobId}`,
         {jobData: addJob,  // Complete
-         jobId: jobId 
+         jobId: jobId ,
+         withCredentials: true,
         },
         {
           headers: { 
