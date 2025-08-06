@@ -1,6 +1,7 @@
 import express from 'express'
 import{
     employerLogin,
+    employerLogout,
     sendVerifyOtp,
     verifyEmail,
     setPassword,
@@ -12,10 +13,11 @@ import { protectCompany } from '../Middleware/company_middleware.js';
 
 const authRouter=express.Router()
 authRouter.post('/employeer-login',employerLogin)
+authRouter.post('/employeer-logout',employerLogout);
 authRouter.post('/send-verify-otp',email_validation,sendVerifyOtp);
 authRouter.post('/verify-email',otp_validation,verifyEmail);
 authRouter.post('/set-password',password_validation,setPassword)
-authRouter.get('/get-company',protectCompany,AuthState)
+authRouter.get('/check-auth',protectCompany,AuthState)
 
 export default authRouter
 

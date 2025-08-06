@@ -8,7 +8,7 @@ import jwt from 'jsonwebtoken'
 export const employerLogin=async(req,res)=>{
     const {email,password}=req.body
     if(!email || !password){
-        return res.status(400).json({succes:'false',message:'Please fill the required details'})
+        return res.status(400).json({success:'false',message:'Please fill the required details'})
     }
     try{
     const company=await companyModel.findOne({email});
@@ -28,11 +28,13 @@ export const employerLogin=async(req,res)=>{
      httpOnly: true,
      sameSite: 'lax', 
      secure: false, 
-     maxAge: 24 * 60 * 60 * 1000
+     maxAge: 24 * 60 * 60 * 1000,
+     domain: 'localhost',
+      path: '/'
      });
        return res.json({
         success:true,
-         token:token
+        token:token
       })
       
     }catch(error){
@@ -40,20 +42,21 @@ export const employerLogin=async(req,res)=>{
     }
 
 }
-export const logout=async(req,res)=>{
+export const employerLogout=async(req,res)=>{
     try{
-        res.clearCookie('token',{
-            httpOnly:true,
-            secure:"lax",
-            sameSite:"true",
-        })
-        return res.json({sucess:true,message:'Logged Out'})
-    }
-    catch(error){
-                res.json({success:false,message:'Missing Details'})
+        
+    res.clearCookie('token', {
+      httpOnly: true,
+      secure: false,            // http
+      sameSite: 'Lax',          // supports local dev
+    });
+    return res.json({ success: true, message: 'Logged Out' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
 
-        }
-}
+        
 export const sendVerifyOtp = async (req, res) => {
   try {
     const { email } = req.body;

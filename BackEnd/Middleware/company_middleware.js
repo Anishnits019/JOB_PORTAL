@@ -3,8 +3,11 @@ import jwt from 'jsonwebtoken'
 import companyModel from '../Models/Company.js'; // Adjust path as needed
 
 export const protectCompany=async(req,res,next)=>{
+    console.log(req.cookies)
       const {token}=req.cookies
+      console.log('helo')
       console.log(token)
+      console.log('hello')
       if(!token){
           return res.status(401).json({ 
             success: false,
@@ -24,7 +27,6 @@ export const protectCompany=async(req,res,next)=>{
             }
             req.company = {companyId:company._id }
             next()
-
         }
     catch(error){
         return res.json({success:false,message:error.message})
