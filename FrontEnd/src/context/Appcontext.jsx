@@ -59,18 +59,24 @@ export const AppContextProvider=(props)=>{
         });
     // getcompnay
     const [company,setCompany]=useState(null);
-    useEffect(() => {
+    const [employerMode,setEmployeerMode]=useState(false);
+    const [userMode,setUserMode]=useState(false);
+    const [guestMode,setGuestMode]=useState(true);
     const fetchCompany=async()=>{
       try {
-        const res = await axios.get('http://localhost:5000/auth/get-company', { withCredentials: true });
+        const res = await axios.get('http://localhost:5000/auth/check-auth', { 
+                withCredentials: true 
+         });
         setCompany(res.data.company);
         console.log(res.data.company)
       } catch (err) {
         setCompany(null);
       }
     };
-    fetchCompany()
-    },[])
+    useEffect(() => {
+        fetchCompany();
+    }, []);
+  
     useEffect(() => {
       const fetchJobTitles = async () => {
         try {
@@ -328,7 +334,7 @@ export const AppContextProvider=(props)=>{
 
         const value={
             searchFilter,setSearchFilter,isSearched,setIsSearched,page,setPage,jobs,setJobs,filteredJobs,setFilteredJobs,searchJobs,handleLocationFilter,handleCategoryFilter,appliedJobs,setAppliedJobs,foundJob,setFoundJob,manageJobs,ViewApplications,setViewApplications,addJob,setAddJob,formData, setFormData,company,setCompany,popUpKey,setPopUpKey,editFields,title,setTitle,handleIncentiveFilter,
-            area,setArea,handleTimingFilter,handleBenefitFilter,
+            area,setArea,handleTimingFilter,handleBenefitFilter,fetchCompany,employerMode,setEmployeerMode,userMode,setUserMode,guestMode,setGuestMode
         }
 
       return(
@@ -337,6 +343,6 @@ export const AppContextProvider=(props)=>{
             {props.children}
         </AppContext.Provider>
       )
-    }
+}
 
 

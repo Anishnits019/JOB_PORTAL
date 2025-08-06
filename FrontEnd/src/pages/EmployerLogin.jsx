@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect,useContext } from 'react';
+import { AppContext } from '../context/Appcontext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
+import { LoadingSpinner } from '../components/Loading';
 export const EmployerLogin = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
@@ -10,7 +11,10 @@ export const EmployerLogin = () => {
     email: '',
     form: ''
   });
+  const [isLoading,setIsLoading]=useState(false); 
+
   const navigate = useNavigate();
+  const {fetchCompany,company}=useContext(AppContext);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -19,7 +23,21 @@ export const EmployerLogin = () => {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
+   useEffect(()=>{
+          setIsLoading(true);
+          const timer=setTimeout(() => {
+            setIsLoading(false);
+          }, 400);
+          return ()=>clearTimeout(timer);
+        },[])
+        console.log(company);
+  useEffect(()=>{
+        fetchCompany()
+        if(company){
+          navigate('/dashboard',{replace:true});
+        }
 
+      },[navigate])
   const LoginEmployee = async () => {
     setLoading(true);
     try {
@@ -34,7 +52,7 @@ export const EmployerLogin = () => {
         }
       );
       if(response.data.success){
-      navigate('/dashboard')
+      navigate('/dashboard',{ replace: true })
     }
     } catch (err) {
              
@@ -67,10 +85,14 @@ export const EmployerLogin = () => {
 }
 }
 
-  }  
+  }
+  console.log(company);
+      if(isLoading) return <LoadingSpinner fullscreen={true}/>
+ 
 return (
     <>
       <div className="min-h-screen">
+        
         {/* Image - Visible on all screens */}
         <div className="lg:hidden w-full px-10 py-10 flex items-center justify-center">
           <img
