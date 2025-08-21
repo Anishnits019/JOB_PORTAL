@@ -21,15 +21,10 @@ export const Review = () => {
   const handleChange =async()=>{
     try {
       const response = await axios.post(
-        `http://localhost:5000/company/job/${jobId}/post-job`,
-         {jobData: addJob,  
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+  `${import.meta.env.VITE_BASE_URL}/company/job/${jobId}/post-job`,
+  { jobData: addJob },
+  { headers: { 'Content-Type': 'application/json' } }
+);
       if(response.data.success){
         navigate(`/dashboard`);
       } 

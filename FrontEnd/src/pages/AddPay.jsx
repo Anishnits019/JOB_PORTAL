@@ -78,15 +78,15 @@ export const AddPay = () => {
       setIsSubmitting(true); 
          try {
       const response = await axios.patch(
-        `http://localhost:5000/company/job/${jobId}/benefits`,
-         {jobData:addJob,
-        jobId:jobId},
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+  `${import.meta.env.VITE_BASE_URL}/company/job/${jobId}/benefits`,
+  { jobData: addJob, jobId: jobId },
+  {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+);
+
       if(response.data.success){
         navigate(`/job/${jobId}/edit/`);
       } 

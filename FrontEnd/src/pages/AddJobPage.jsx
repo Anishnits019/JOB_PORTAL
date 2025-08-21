@@ -6,14 +6,16 @@ export const AddJobPage = () => {
     const createId=async()=>{
         try{
         const jobId = Math.floor(100 + Math.random() * 900); 
-        const response=await axios.patch("http://localhost:5000/company/add-job-id",
-            {jobId},
-            {
-            headers:{
-                'Content-type':'application/json'
-            }
-        }
-        )
+        const response = await axios.patch(
+  `${import.meta.env.VITE_BASE_URL}/company/add-job-id`,
+  { jobId },
+  {
+    headers: {
+      'Content-type': 'application/json'
+    }
+  }
+);
+
         if(response.data.success){
             navigate(`/job/${jobId}`)
         }

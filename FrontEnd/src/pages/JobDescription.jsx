@@ -24,7 +24,10 @@ export const JobDescription = () => {
   useEffect(()=>{
        const fetchJobDetails = async () => {
     try {
-      const  response  = await axios.get(`http://localhost:5000/job/${id}/description`)
+      const response = await axios.get(
+  `${import.meta.env.VITE_BASE_URL}/job/${id}/description`
+);
+
       console.log('starts')
       if(response.data.success){
         console.log('end')

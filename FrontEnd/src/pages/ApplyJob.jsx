@@ -113,14 +113,15 @@ export const ApplyJob = () => {
 
     try {
       const response = await axios.post(
-        `http://localhost:5000/job/${id}/apply-job`, 
-        formDataToSend,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data'  
-          }
-        }
-      );
+  `${import.meta.env.VITE_BASE_URL}/job/${id}/apply-job`, 
+  formDataToSend,
+  {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  }
+);
+
 
       if (response.status === 200) {
         setApplied(true);

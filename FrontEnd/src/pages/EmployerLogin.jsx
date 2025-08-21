@@ -42,15 +42,16 @@ export const EmployerLogin = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        'http://localhost:5000/auth/employeer-login',
-        { 
-          email: formData.email,
-          password:formData.password
-        },
-        { 
-          headers: { 'Content-Type': 'application/json' } 
-        }
-      );
+  `${import.meta.env.VITE_BASE_URL}/auth/employeer-login`,
+  { 
+    email: formData.email,
+    password: formData.password
+  },
+  { 
+    headers: { 'Content-Type': 'application/json' } 
+  }
+);
+
       if(response.data.success){
       navigate('/dashboard',{ replace: true })
     }

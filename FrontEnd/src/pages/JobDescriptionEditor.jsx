@@ -38,16 +38,17 @@ import {useNavigate,useParams} from 'react-router-dom'
   };
   const handleContinue = async() => {
         setIsSubmitting(true);
-    const response=await axios.patch(`http://localhost:5000/company/job/${jobId}/edit`,
-    {jobData: addJob,  
-         jobId: jobId 
-      },
-    {
-        headers:{
-            'Content-Type':'application/json'
-        }
-    }
-)
+    const response = await axios.patch(
+  `${import.meta.env.VITE_BASE_URL}/company/job/${jobId}/edit`,
+  {
+    jobData: addJob,
+    jobId: jobId
+  },
+  {
+    headers: { 'Content-Type': 'application/json' }
+  }
+);
+
  if(response.data.success){
     
   navigate(`/job/${jobId}/review`,)

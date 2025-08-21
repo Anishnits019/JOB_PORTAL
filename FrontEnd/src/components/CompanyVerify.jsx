@@ -35,16 +35,21 @@ export const CompanyVerify = () => {
   
     try {
 
-       const response=await axios.post('http://localhost:5000/company/verifyandregister',
+       const response = await axios.post(
+  `${import.meta.env.VITE_API_URL}/company/verifyandregister`,
+  {
+    CIN: credentials.CIN,
+    PAN: credentials.PAN,
+    email: state?.email,
+    sessionId: sessionId
+  },
+  {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+);
 
-        { CIN:credentials.CIN, 
-          PAN:credentials.PAN,
-          email:state?.email,
-          sessionId:sessionId
-        },
-        { headers: { 'Content-Type': 'application/json' } }
-
-      );
 
       if(response.data.success){
       navigate('/dashboard', {

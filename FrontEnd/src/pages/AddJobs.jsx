@@ -49,18 +49,15 @@ export const AddJobs = () => {
       }
 
       const response = await axios.patch(
-        `http://localhost:5000/company/job/${jobId}`,
-        {jobData: addJob,  // Complete
-         jobId: jobId ,
-         withCredentials: true,
-        },
-        {
-          headers: { 
-            'Content-Type': 'application/json',
-            
-          }
-        }
-      );
+  `${import.meta.env.VITE_BASE_URL}/company/job/${jobId}`,
+  { jobData: addJob, jobId: jobId, withCredentials: true },
+  {
+    headers: { 
+      'Content-Type': 'application/json',
+    }
+  }
+);
+
       
       if (response.data.success) {
         navigate(`/job/${jobId}/details`);

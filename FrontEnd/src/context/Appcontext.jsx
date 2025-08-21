@@ -81,9 +81,11 @@ const [companyLoading, setCompanyLoading] = useState(true);
 const fetchCompany = useCallback(async () => {
   setCompanyLoading(true);
   try {
-    const res = await axios.get('http://localhost:5000/auth/check-auth', { 
-      withCredentials: true 
+    const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/auth/check-auth`, { 
+    withCredentials: true 
     });
+
+
     if (res.data?.company) {
       setCompany(res.data.company);
     } else {
@@ -100,7 +102,7 @@ const fetchCompany = useCallback(async () => {
     useEffect(() => {
       const fetchJobTitles = async () => {
         try {
-          const response = await axios.get('http://localhost:5000/company/job/jobtitles');
+          const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/company/job/jobtitles`);
           
           if (response.data.success) {
             setTitle(response.data.jobTitles)
@@ -118,7 +120,7 @@ const fetchCompany = useCallback(async () => {
     useEffect(() => {
       const fetchAreas = async () => {
         try {
-          const response = await axios.get('http://localhost:5000/company/job/areas');
+          const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/company/job/areas`);
           
           if (response.data.success) {
             setArea(response.data.Areas)
@@ -137,7 +139,8 @@ const fetchCompany = useCallback(async () => {
     useEffect(() => {
       const location = async () => {
         try {
-          const response = await axios.get('http://localhost:5000/company/job/location');
+          const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/company/job/location`);
+
           
           if (response.data.success) {
             setTitle(response.data.Area)
@@ -177,14 +180,12 @@ const fetchCompany = useCallback(async () => {
     },[])
     const editFields=async(keyName,jobId,data)=>{
     try{
-     const response=await axios.patch(`http://localhost:5000/company/job/${jobId}/edit-job`,
-      {
-        [keyName]:data
-      },
-      {headers:{
-        'Content-Type': 'application/json',
-      }}
-    )
+     const response = await axios.patch(
+    `${import.meta.env.VITE_BASE_URL}/company/job/${jobId}/edit-job`,
+     { [keyName]: data },
+     { headers: { 'Content-Type': 'application/json' } }
+     );
+
      if(response.data.success){
         setPopUpKey(null)
         setAddJob({...addJob,[keyName]:data})
@@ -201,17 +202,18 @@ const fetchCompany = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await axios.post(
-        `http://localhost:5000/job/filterjobs`,
-        {
-          page: page,
-          filters: currentFilters
-        },
-        {
-          headers: {
-            'Content-type': 'application/json'
-          }
-        }
-      );
+  `${import.meta.env.VITE_BASE_URL}/job/filterjobs`,
+  {
+    page: page,
+    filters: currentFilters
+  },
+  {
+    headers: {
+      'Content-type': 'application/json'
+    }
+  }
+);
+
       
       if (response.data.success) {
         setFilteredJobs(response.data.job);

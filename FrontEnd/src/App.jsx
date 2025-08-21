@@ -44,7 +44,7 @@ const App = () => {
         <Route path="/job/:jobId/edit" element={<JobDescriptionEditor/>}></Route>
         <Route path="/job/:jobId/review" element={<Review/>}></Route>
         {/* <Route path='/set-prefrence' element={<PreferencesPage/>}></Route> */}
-            <Route path='dashboard' element={<Dashboard/>}>
+            <Route path='/dashboard' element={<Dashboard/>}>
             <Route index element={<ManageJobs />} /> 
             <Route path='manage-jobs' element={<ManageJobs/>}></Route>
             <Route path='add-jobs'index element={<AddJobPage/>}></Route>
