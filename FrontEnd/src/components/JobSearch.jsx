@@ -4,26 +4,17 @@ import {jobsData} from '../assets/assets'
 import { AppContext } from '../context/Appcontext'
 import {useNavigate} from 'react-router-dom'
 export const JobSearch = () => {
- const {searchFilter,setSearchFilter,isSearched,setIsSearched,filteredJobs,searchJobs}=useContext(AppContext)
+const {setFilters,filterJobs,filters,page,parseFiltersFromURL,updateFiltersAndURL}=useContext(AppContext)
 const titleRef=useRef(null)
 const locationRef=useRef(null)
 const navigate=useNavigate()
-    const handleSearch=()=>{
-        
-        setSearchFilter(
-            {
-                title:titleRef.current.value,
-                location:locationRef.current.value
-            }
-        )
-            const title=titleRef.current.value
-            const city=locationRef.current.value
-           
-            searchJobs(title,city)
-            setIsSearched(true)
-            console.log(isSearched)
-            navigate('/search-jobs')
-    }
+
+     const handleSearch = () => {
+    updateFiltersAndURL({
+      jobTitle: titleRef.current.value,
+      location: locationRef.current.value,
+    });
+  };
 
   return (
   <div className="flex items-center bg-white rounded-xl shadow-lg p-2 space-x-4 border border-gray-100">

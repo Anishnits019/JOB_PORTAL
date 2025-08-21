@@ -10,37 +10,34 @@ import { useUser} from '@clerk/clerk-react';
 
 export const Home = () => {
   const { isLoaded, isSignedIn, user } = useUser();
-  const { fetchCompany, company } = useContext(AppContext);
+  const { fetchCompany, company,companyLoading } = useContext(AppContext);
   const navigate = useNavigate();
   const [isLoading,setIsLoading]=useState(false);
   console.log('yes1');
-  useEffect(() => {
-    fetchCompany();
-  }, [fetchCompany]);
   
   useEffect(() => {
+  fetchCompany();
+}, [fetchCompany]);
 
-    setIsLoading(true);
-          const timer=setTimeout(() => {
+useEffect(() => {
+  if (companyLoading) return; 
 
-            setIsLoading(false);
-            {company && navigate('/dashboard', { replace: true })};
-            {isSignedIn && navigate('/', { replace: true });
-            console.log('yes');
-}
-          }, 600);
-          return ()=>clearTimeout(timer);
-         },[company,isSignedIn,]);
-  
-  if(isLoading) return <LoadingSpinner fullscreen={true}/>
+  if (company) {
+    navigate('/dashboard', { replace: true });
+  } else if (isSignedIn) {
+    navigate('/', { replace: true });
+  }
+}, [company, isSignedIn, companyLoading, navigate]);
+
+if (companyLoading) return <LoadingSpinner fullscreen />;
+
   return (
     <>
-      <div>
+      <div className="bg-[000000]">
         <Navbar/>
         <Search/>
         <Browser/>
         <Footer/>
       </div>
-  
   </>
   )}

@@ -123,7 +123,6 @@ export const locations = [
   "Chennai ",
   "Hyderabad",
   "Mumbai",
-  "Bengaluru",
 ];
 export const timings=[
      'Day Shift',

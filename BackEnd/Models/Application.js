@@ -77,6 +77,10 @@ const applicationSchema = new mongoose.Schema({  // Personal Information
     type: String,
     enum: ['submitted', 'under_review', 'shortlisted', 'rejected'],
     default: 'submitted'
+  },
+  resumeUrl:{
+    type:String,
+    required:[true,'Resume is required']
   }
 }, {
   timestamps: true

@@ -4,7 +4,7 @@ import { useClerk, useUser, UserButton } from '@clerk/clerk-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { assets } from '../assets/assets';
 import axios from 'axios';
-export function Navbar() {
+export function Navbar({link}) {
   const { openSignIn } = useClerk();
   const { isLoaded, isSignedIn, user } = useUser();
   const navigate = useNavigate();
@@ -45,7 +45,7 @@ export function Navbar() {
   if (!isLoaded) return null;
 
   return (
-    <div className='flex justify-between items-center px-4 sm:px-8 md:px-14 py-6 border-b border-gray-200 bg-white shadow-sm'>
+    <div className='flex justify-between items-center px-4 sm:px-8 md:px-14 py-6 border-b border-gray-200 bg-white shadow-sm' id={`${link}`} >
       
       {/* Logo */}
       <div 

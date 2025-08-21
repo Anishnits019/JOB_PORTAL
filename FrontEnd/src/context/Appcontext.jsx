@@ -1,22 +1,29 @@
-import {useState, createContext } from "react";
+import {useState, createContext,useCallback } from "react";
 import {jobsData,manageJobsData,viewApplicationsPageData} from '../assets/assets'
 import { useEffect } from "react";
 import axios from 'axios'
+import { useNavigate } from "react-router-dom";
 // import { data } from "react-router-dom";
 
 export const AppContext=createContext()
 
 export const AppContextProvider=(props)=>{
+const navigate=useNavigate();
 
     const[searchFilter,setSearchFilter]=useState({title:"",location:""})
     const [filteredJobs,setFilteredJobs]=useState(null);
     const [isSearched,setIsSearched]=useState(false);
     // Filters
-    const [selectedLocation, setSelectedLocation] = useState([])
-    const [selectedTimings, setSelectedTimings] = useState([])
-    const [selectedCategories, setSelectedCategories] = useState([])
-    const [selectedBenefits, setSelectedBenefits] = useState([])
-    const [selectedIncentives, setSelectedIncentives] = useState([])
+    
+    const [filters,setFilters]=useState({
+          jobTitle:"",
+          location:"",
+          locations: [],
+          timings: [],
+          categories: [],
+          benefits: [],
+          incentives: []
+    });
     // Applied
     const [appliedJobs,setAppliedJobs]=useState([]);
     const [foundJob,setFoundJob]=useState([])
@@ -29,6 +36,7 @@ export const AppContextProvider=(props)=>{
     //Loader
     const [isloading,setLoading]=useState(false)
     // Add job
+    const [totalPages,setTotalPages]=useState(1);
     const [addJob,setAddJob]=useState({
     title: '',
     description: '',
@@ -47,6 +55,7 @@ export const AppContextProvider=(props)=>{
     detailedDescription: '',
     email: ''
     })
+     const [isLoading,setIsLoading]=useState(false);
     const [title,setTitle]=useState([])
     const [area,setArea]=useState([])
     const [popUpKey,setPopUpKey]=useState(null);
@@ -57,26 +66,37 @@ export const AppContextProvider=(props)=>{
             password: '',
             image: null,
         });
-    // getcompnay
-    const [company,setCompany]=useState(null);
     const [employerMode,setEmployeerMode]=useState(false);
     const [userMode,setUserMode]=useState(false);
     const [guestMode,setGuestMode]=useState(true);
-    const fetchCompany=async()=>{
-      try {
-        const res = await axios.get('http://localhost:5000/auth/check-auth', { 
-                withCredentials: true 
-         });
-        setCompany(res.data.company);
-        console.log(res.data.company)
-      } catch (err) {
-        setCompany(null);
-      }
-    };
-    useEffect(() => {
-        fetchCompany();
-    }, []);
-  
+
+  const [company, setCompany] = useState(() => {
+
+  const saved = localStorage.getItem("company");
+  return saved ? JSON.parse(saved) : null;
+});
+
+const [companyLoading, setCompanyLoading] = useState(true); 
+
+const fetchCompany = useCallback(async () => {
+  setCompanyLoading(true);
+  try {
+    const res = await axios.get('http://localhost:5000/auth/check-auth', { 
+      withCredentials: true 
+    });
+    if (res.data?.company) {
+      setCompany(res.data.company);
+    } else {
+      setCompany(null);
+    }
+  } catch (err) {
+    console.error("Error fetching company:", err);
+    setCompany(null);
+  } finally {
+    setCompanyLoading(false); 
+  }
+}, []);
+   
     useEffect(() => {
       const fetchJobTitles = async () => {
         try {
@@ -176,106 +196,15 @@ export const AppContextProvider=(props)=>{
   }
 
     }
-    const searchJobs=async(title,city)=>{
-      
-       const response =await axios.post(`http://localhost:5000/job/getjob`,
-          {
-            title,city,page,
-           
-          },
-       {headers:{
-         'Content-type':'application/json'
-       }})
-        if(response.data.success){
-          setFilteredJobs(response.data.job)
-          console.log(response.data.job)
-        }
-    }
-    useEffect(() => {
-        if (jobs.length > 0 && !isSearched) {
-        setFilteredJobs(jobs);
-       }
-    }, [jobs, isSearched]);
-    useEffect(() => {
-       if (searchFilter.title === "" && searchFilter.location === "") {
-        setFilteredJobs(jobs);
-         setIsSearched(false);
-    }
-     }, [searchFilter, jobs]);
-
-
-        
-        
-
-  const handleLocationFilter = (e) => {
-  const value = e.target.value
-  const isChecked = e.target.checked
-  if(isChecked){
-    setSelectedLocation((prev) => [...prev, value])
-  } else {
-    const filterresults = selectedLocation.filter((c) => c !== value)
-    setSelectedLocation(filterresults)
-  }
-}
-
-  const handleTimingFilter = (e) => {
-  const value = e.target.value
-  const isChecked = e.target.checked
-  if(isChecked){
-    setSelectedTimings((prev) => [...prev, value])
-  } else {
-    const filterresults = selectedTimings.filter((c) => c !== value)
-    setSelectedTimings(filterresults)
-  }
-}
-
-  const handleCategoryFilter = (e) => {
-  const value = e.target.value
-  const isChecked = e.target.checked
-  if(isChecked){
-    setSelectedCategories((prev) => [...prev, value])
-  } else {
-    const filterresults = selectedCategories.filter((c) => c !== value)
-    setSelectedCategories(filterresults)
-  }
-}
-
-  const handleBenefitFilter = (e) => {
-  const value = e.target.value
-  const isChecked = e.target.checked
-  if(isChecked){
-    setSelectedBenefits((prev) => [...prev, value])
-  } else {
-    const filterresults = selectedBenefits.filter((c) => c !== value)
-    setSelectedBenefits(filterresults)
-  }
-}
-
- const handleIncentiveFilter = (e) => {
-  const value = e.target.value
-  const isChecked = e.target.checked
-  if(isChecked){
-    setSelectedIncentives((prev) => [...prev, value])
-  } else {
-    const filterresults = selectedIncentives.filter((c) => c !== value)
-    console.log(filterresults)
-    setSelectedIncentives(filterresults)
-  }
-}
-  useEffect(() => {
-  const filterJobs = async () => {
+   
+   const filterJobs = useCallback(async (currentFilters, page) => {
+    setIsLoading(true);
     try {
       const response = await axios.post(
-        `http://localhost:5000/job/filterjob`,
+        `http://localhost:5000/job/filterjobs`,
         {
-          title: searchFilter.title,
-          city: searchFilter.location, 
-          page,
-          selectedLocation,
-          selectedTimings,
-          selectedCategories,
-          selectedBenefits,
-          selectedIncentives
+          page: page,
+          filters: currentFilters
         },
         {
           headers: {
@@ -286,55 +215,79 @@ export const AppContextProvider=(props)=>{
       
       if (response.data.success) {
         setFilteredJobs(response.data.job);
+        setTotalPages(response.data.total/10);
       }
     } catch (error) {
       console.error('Filter error:', error);
+    } finally {
+      setIsLoading(false);
     }
+  }, []);
+
+   const parseFiltersFromURL = () => {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    jobTitle: params.get('jobTitle') || '',
+    location: params.get('location') || '',
+    locations: params.getAll('locations'),
+    timings: params.getAll('timings'),
+    categories: params.getAll('categories'),
+    benefits: params.getAll('benefits'),
+    incentives: params.getAll('incentives')
   };
-  
-  filterJobs();
-}, [
-  selectedLocation,
-  selectedTimings,
-  selectedCategories,
-  selectedBenefits,
-  selectedIncentives,
-  searchFilter.title,
-  searchFilter.location,
-  page
-]);
-  
-            // dont do i there because state value chnages i sasnchrnous na di tneed alway rerebdrind to using any state varaible instanlly on demand s0
-//             useEffect(() => {
-//               let result = jobs;
-    
-//     // Apply location filter if locations are selected
-//                if (selectedLocation.length > 0) {
-//                 result = result.filter(job => 
-//                  selectedLocation.some(loc => 
-//                 job.location.toLowerCase().includes(loc.toLowerCase())
-//             )
-//         );
-//     }
-    
-//     // Apply category filter if categories are selected
-//     if (selectedCategory.length > 0) {
-//         result = result.filter(job => 
-//             selectedCategory.some(cat => 
-//                 job.category.toLowerCase().includes(cat.toLowerCase())
-//             )
-//         );
-//     }
-    
-//     setFilteredJobs(result);
-// }, [jobs, selectedCategory, selectedLocation]);
-               
+    };
+  // Unified effect for handling URL changes and filtering
+    const handleRouteChange = useCallback(() => {
+    const urlFilters = parseFiltersFromURL();
+    setFilters(urlFilters);
+    filterJobs(urlFilters, page);
+  }, [page, filterJobs]);
 
-// th littile problem is that tht data is inside teh fxn and i am using it outside so they mus tbe inde a fxn  and this will upadte when i chnag some paramter so thi si sin use eefct
+  // Effect for handling URL changes and filtering
+  useEffect(() => {
+    // Initial load
+    handleRouteChange();
 
+    // Listen for back/forward navigation
+    
+  }, [handleRouteChange]);
+
+
+  // Improved updateFiltersAndURL
+  const updateFiltersAndURL = useCallback(async (updates) => {
+    setFilters(prev => {
+      const newFilters = { ...prev, ...updates };
+      const params = new URLSearchParams();
+
+      Object.entries(newFilters).forEach(([key, values]) => {
+        if (Array.isArray(values)) {
+          values.forEach(val => params.append(key, val));
+        } else if (values) {
+          params.set(key, values);
+        }
+      });
+
+      const newUrl = `/search-jobs?${params.toString()}`;
+      
+      if (window.location.pathname !== '/search-jobs') {
+        navigate(newUrl);
+      } else {
+        window.history.pushState({}, '', newUrl);
+      }
+
+      // Trigger filtering with the new state
+      filterJobs(newFilters, 1); // Reset to page 1 when filters change
+      setPage(1);
+      
+      return newFilters;
+    });
+  }, [navigate, filterJobs]);
+  
+
+  
         const value={
-            searchFilter,setSearchFilter,isSearched,setIsSearched,page,setPage,jobs,setJobs,filteredJobs,setFilteredJobs,searchJobs,handleLocationFilter,handleCategoryFilter,appliedJobs,setAppliedJobs,foundJob,setFoundJob,manageJobs,ViewApplications,setViewApplications,addJob,setAddJob,formData, setFormData,company,setCompany,popUpKey,setPopUpKey,editFields,title,setTitle,handleIncentiveFilter,
-            area,setArea,handleTimingFilter,handleBenefitFilter,fetchCompany,employerMode,setEmployeerMode,userMode,setUserMode,guestMode,setGuestMode
+            searchFilter,setSearchFilter,isSearched,setIsSearched,page,setPage,jobs,setJobs,filteredJobs,setFilteredJobs,appliedJobs,setAppliedJobs,foundJob,setFoundJob,manageJobs,ViewApplications,setViewApplications,addJob,setAddJob,formData, setFormData,company,setCompany,popUpKey,setPopUpKey,editFields,title,setTitle,
+            area,setArea,fetchCompany,employerMode,setEmployeerMode,userMode,setUserMode,guestMode,setGuestMode,companyLoading, setCompanyLoading,filters,setFilters,isLoading,setIsLoading,totalPages,filterJobs,updateFiltersAndURL,parseFiltersFromURL
         }
 
       return(

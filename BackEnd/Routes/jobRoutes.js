@@ -1,11 +1,10 @@
 import express from 'express'
-import { getjobs,filterjobs,getjobbyId,submitApplication } from "../Controllers/JobControllers.js"
+import { filterjobs,getjobbyId,submitApplication } from "../Controllers/JobControllers.js"
+import upload from '../config/multer.js'
 
 const  jobRouter=express.Router()
 
-jobRouter.post('/getjob', getjobs);
-jobRouter.post('/filterjob', filterjobs);
-jobRouter.get('/:id/description',getjobbyId)
-jobRouter.post('/:id/apply-job', submitApplication);
-
+jobRouter.post('/filterjobs', filterjobs);
+jobRouter.get('/:id/description',getjobbyId);
+jobRouter.post('/:id/apply-job',upload.single('resume'), submitApplication )
 export default jobRouter

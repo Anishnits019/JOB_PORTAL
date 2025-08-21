@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
   jobId:{
     type: Number,
   },
-  title: {
+  jobTitle: {
     type: String,
     trim:true,
     default: ''
@@ -101,11 +101,12 @@ import mongoose from 'mongoose';
   updatedAt: { type: Date, default: Date.now },
   isComplete: { type: Boolean, default: false },
 })
-// Update the updatedAt field before saving
 postSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
   next();
 });
+postSchema.index({ jobTitle: 1 });           
+
 const PostModel = mongoose.model('jobdata', postSchema );
 export default PostModel
 

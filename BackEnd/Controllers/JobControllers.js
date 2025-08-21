@@ -1,7 +1,6 @@
 import React from 'react'
 import PostModel from '../Models/PostJob.js'
 import applicationModel from '../Models/Application.js';
-
 export const getjobbyId=async(req,res)=>{
     try{
         const {id}= req.params
@@ -23,98 +22,73 @@ export const getjobbyId=async(req,res)=>{
   }
 }
 
-export const getjobs = async (req, res) => {
-  const { title, city, page } = req.body;
-  
-  try {
-    const query = [];
-
-    // Match jobTitle with case-insensitive regex
-    if (title) {
-      query.push({
-        jobTitle: {
-          $regex: title,
-          $options: 'i',
-        },
-      });
-    }
-
-    // Match location.city with case-insensitive regex
-    if (city) {
-      query.push({
-        'location.city': {
-          $regex: city,
-          $options: 'i',
-        },
-      });
-    }
-
-    const filterJobs = await PostModel.find({ $and: query })
-      
-
-    if (!filterJobs || filterJobs.length === 0) {
-      return res.json({ success: false, message: "No jobs found" });
-    }
-
-    return res.json({
-      success: true,
-      job: filterJobs,
-    });
-  } catch (error) {
-    return res.json({ success: false, message: error.message });
-  }
-};
+function escapeRegex(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 export const filterjobs = async (req, res) => {
   const { 
-    title, 
-    city, // Changed from location to match your schema
-    page = 1,
-    selectedLocation = [],
-    selectedTimings = [],
-    selectedCategories = [],
-    selectedBenefits = [],
-    selectedIncentives = []
+    page,
+    filters
   } = req.body;
+  console.log(req.body)
 
-  // const limit = 10;
-  // const skip = (page - 1) * limit;
+  const limit = 10; 
+  const skip = (page - 1) * limit;
 
   try {
     const query = {};
 
-    // Text search filters
-    if (title) query.jobTitle = { $regex: title, $options: 'i' };
-    if (city) query['location.city'] = { $regex: city, $options: 'i' };
+    if (filters.jobTitle) {
+  const escapedTitle = escapeRegex(filters.jobTitle.trim());
+  query.jobTitle = { // Changed from 'title' to 'jobTitle'
+    $regex: escapedTitle,
+    $options: 'i'
+  };
+}
 
-    // Array filters
-    if (selectedLocation.length > 0) {
-      query['location.city'] = { $in: selectedLocation };
+
+    // if (filters.location) {
+    //   const escapedCity = escapeRegex(filters.location.trim());
+    //   query['location.city'] = { 
+    //     $regex: `^${escapedCity}`,
+    //     $options: 'i'
+    //   };
+    // }
+
+  
+    if (filters.locations && filters.locations.length > 0) {
+      query['location.city'] = { $in: filters.locations };
+    }
+    if ( filters.timings && filters.timings.length > 0) {
+      query.timings = { $in: filters.timings };
     }
     
-    if (selectedTimings.length > 0) {
-      query.timings = { $in: selectedTimings };
-    }
-    
-    if (selectedCategories.length > 0) {
-      query.category = { $all: selectedCategories };
+    if (filters.categories && filters.categories.length > 0) {
+      query.category = { $all: filters.categories };
     }
     
     // Array fields - must contain all selected values
-    if (selectedBenefits.length > 0) {
-      query.benefits = { $all: selectedBenefits };
+    if (filters.benefits&& filters.benefits.length > 0) {
+      query.benefits = { $all: filters.benefits };
     }
     
-    if (selectedIncentives.length > 0) {
-      query.incentives = { $all: selectedIncentives };
+    if (filters.incentives && filters.incentives.length > 0) {
+      query.incentives = { $all: filters.incentives };
     }
-
-    const filterJobs = await PostModel.find(query)
-     
-
+    
+    const [jobs, total] = await Promise.all([
+      PostModel.find(query)
+        .sort({ createdAt: -1 }) 
+        .skip(skip)
+        .limit(limit),
+      PostModel.countDocuments(query)
+    ]);
+    console.log(jobs.length)
     return res.json({
       success: true,
-      job: filterJobs, // Changed to plural 'jobs'
+      job: jobs, 
+      total:total
     });
 
   } catch (error) {
@@ -140,12 +114,12 @@ export const submitApplication = async (req, res) => {
       current_salary,
       expected_salary,
       jobId,
-      // jobTitle,
-      // company
     } = req.body;
+     const resumeUrl = req.file.path; 
+     console.log(req.body)
+     console.log(resumeUrl)
 
-    // Create new application without resume
-    const application = new applicationModel({
+     const application = new applicationModel({
       name,
       email,
       phone,
@@ -157,8 +131,7 @@ export const submitApplication = async (req, res) => {
       current_salary: current_salary ? parseFloat(current_salary) : null,
       expected_salary: parseFloat(expected_salary),
       jobId,
-      // jobTitle,
-      // company,
+      resumeUrl,
       appliedAt: new Date()
     });
 

@@ -1,4 +1,4 @@
-import {useContext,useEffect} from 'react'
+import {useContext,useEffect,useCallback} from 'react'
 import { assets, locations,categories,benefits,incentives,timings } from '../assets/assets'
 import { AppContext } from '../context/Appcontext'
 import { useNavigate } from 'react-router-dom'
@@ -6,32 +6,34 @@ import { JobSearch } from '../components/JobSearch'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
 import {LoadingSpinner} from '../components/Loading'
-// import { JobCardSkeleton } from '../components/Loading'
 import { useState } from 'react'
 export const Joblisting = () => {
-const {isSearched,searchFilter,setSearchFilter,
-  page,setPage,filteredJobs,
-  handleLocationFilter,handleTimingFilter, 
-  handleCategoryFilter, handleBenefitFilter, 
-  handleIncentiveFilter,isloading}=useContext(AppContext)
-const [isLoading,setIsLoading]=useState(false)
+  console.count('Navbar renders');
+
+const {
+  page,setPage,filteredJobs,filters,filterJobs,
+ setFilters,parseFiltersFromURL,isLoading,totalPages,updateFiltersAndURL}=useContext(AppContext);
 const navigate=useNavigate();
-useEffect(() => {
-      setIsLoading(true)
-      const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 400) // Simulate loading time
+
+ useEffect(() => {
+    const urlFilters = parseFiltersFromURL();
+    updateFiltersAndURL(urlFilters);
+  }, []);
+
+  // Handle filter changes
+  const handleFilterChange = (filterKey, value, isChecked) => {
+    const currentValues = filters[filterKey] || [];
+    const updatedArray = isChecked
+      ? [...currentValues, value]
+      : currentValues.filter(item => item !== value);
     
-    return () => clearTimeout(timer)
-  }, [page,
-  handleLocationFilter,handleTimingFilter, 
-  handleCategoryFilter,handleBenefitFilter, 
-  handleIncentiveFilter])
+    updateFiltersAndURL({ [filterKey]: updatedArray });
+  };
+
  return (
 <div className="bg-gray-50 min-h-screen">
-  {isLoading&&<LoadingSpinner/>}
-  <Navbar />
-  
+  <Navbar link="job-list" />
+    {isLoading&&<LoadingSpinner/>}
   <div className='flex w-[90%] mx-auto my-6 gap-6'>
     {/* Filters Sidebar */}
     <div className='w-[20%] bg-white border border-gray-200 rounded-lg shadow-sm p-4 h-fit sticky top-4'>
@@ -47,7 +49,8 @@ useEffect(() => {
             id={`location-${index}`}
             type='checkbox'
             value={location}
-            onChange={handleLocationFilter}
+            checked={filters.locations.includes(location)}
+            onChange={(e)=>handleFilterChange('locations',e.target.value,e.target.checked)}
             className='h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500'
           />
           <label htmlFor={`location-${index}`} className='ml-2 text-sm text-gray-700'>
@@ -68,7 +71,7 @@ useEffect(() => {
             id={`timing-${index}`}
             type='checkbox'
             value={timing}
-            onChange={handleTimingFilter}
+            onChange={(e)=>handleFilterChange('timings' ,e.target.value ,e.target.checked)}
             className='h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500'
           />
           <label htmlFor={`timing-${index}`} className='ml-2 text-sm text-gray-700'>
@@ -89,7 +92,7 @@ useEffect(() => {
             id={`category-${index}`}
             type='checkbox'
             value={category}
-            onChange={handleCategoryFilter}
+            onChange={(e)=>handleFilterChange('categories' ,e.target.value ,e.target.checked)}
             className='h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500'
           />
           <label htmlFor={`category-${index}`} className='ml-2 text-sm text-gray-700'>
@@ -110,7 +113,7 @@ useEffect(() => {
             id={`benefit-${index}`}
             type='checkbox'
             value={benefit}
-            onChange={handleBenefitFilter}
+            onChange={(e)=>handleFilterChange('benefits' ,e.target.value ,e.target.checked)}
             className='h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500'
           />
           <label htmlFor={`benefit-${index}`} className='ml-2 text-sm text-gray-700'>
@@ -131,7 +134,7 @@ useEffect(() => {
             id={`incentive-${index}`}
             type='checkbox'
             value={incentive}
-            onChange={handleIncentiveFilter}
+            onChange={(e)=>handleFilterChange('incentives' ,e.target.value ,e.target.checked)}
             className='h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500'
           />
           <label htmlFor={`incentive-${index}`} className='ml-2 text-sm text-gray-700'>
@@ -147,9 +150,9 @@ useEffect(() => {
     {/* Job Listings */}
     <div className='w-[75%] '>
       <section>
-        <div className='space-y-4' id="job-list">
+        <div className='space-y-4'>
           {filteredJobs?.length > 0 ? (
-            filteredJobs.slice((page-1)*6, 6*page).map((job, index) => (
+            filteredJobs.map((job, index) => (
               <div 
                 key={index}
                 className="bg-white rounded-lg border border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md transition-all duration-200 p-5 cursor-pointer"
@@ -193,48 +196,53 @@ useEffect(() => {
               </div>
             ))
           ) : (
-             isLoading?(
+             
               <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
               <h3 className="text-lg font-medium text-gray-700 mb-2">No jobs found</h3>
               <p className="text-gray-500">Try adjusting your search filters</p>
             </div>
-             ):null
+
           )}
         </div>
       </section>
       <div >
     {filteredJobs?.length > 0 && (
-        <div className='flex justify-center items-center mt-8 mb-12 '>
-          <nav className="inline-flex rounded-md shadow-sm -space-x-px">
-            <button 
-              onClick={() => setPage(prev => Math.max(prev-1, 1))}
-              disabled={page <= 1}
-              className={`px-3 py-2 rounded-l-md border border-gray-300 text-sm font-medium ${page <= 1 ? 'bg-gray-100 text-gray-400' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
-            >
-              Previous
-            </button>
-            
-            {Array.from({length: Math.min(10,Math.ceil(filteredJobs.length/6))}, (_, index) => (
-              <a 
-                href="#job-list" 
-                key={index}
-                onClick={() => setPage(index+1)}
-                className={`px-4 py-2 border border-gray-300 text-sm font-medium ${page === index+1 ? 'bg-blue-50 border-blue-500 text-blue-600 z-10' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
-              >
-                {index+1}
-              </a>
-            ))}
-            
-            <button 
-              onClick={() => setPage(prev => Math.min(prev+1, Math.ceil(filteredJobs.length/6)))}
-              disabled={page >= Math.ceil(filteredJobs.length/6)}
-              className={`px-3 py-2 rounded-r-md border border-gray-300 text-sm font-medium ${page >= Math.ceil(filteredJobs.length/6) ? 'bg-gray-100 text-gray-400' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
-            >
-              Next
-            </button>
-          </nav>
-        </div>
-      )}
+  <div className='flex justify-center items-center mt-8 mb-12 '>
+    <nav className="inline-flex rounded-md shadow-sm -space-x-px">
+      <button 
+        onClick={() => setPage(prev => Math.max(prev-1, 1))}
+        disabled={page <= 1}
+        className={`px-3 py-2 rounded-l-md border border-gray-300 text-sm font-medium ${page <= 1 ? 'bg-gray-100 text-gray-400' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+      >
+        Previous
+      </button>
+      
+      {Array.from({ length: 10 }, (_, index) => (
+        <a
+          href="#job-list" 
+          key={index}
+          onClick={() => setPage(index+1)}
+          className={`px-4 py-2 border border-gray-300 text-sm font-medium ${
+            page === index+1 ? 'bg-blue-50 border-blue-500 text-blue-600 z-10' : 'bg-white text-gray-700 hover:bg-gray-50'
+          }`}
+        >
+          {index+1}
+        </a>
+      ))}
+      
+      <button 
+        onClick={() => setPage(prev => Math.min(prev+1, totalPages))}
+        disabled={page > 10}
+        className={`px-3 py-2 rounded-r-md border border-gray-300 text-sm font-medium ${
+          page > totalPages ? 'bg-gray-100 text-gray-400' : 'bg-white text-gray-700 hover:bg-gray-50'
+        }`}
+      >
+        Next
+      </button>
+    </nav>
+  </div>
+)}
+
       </div>
     </div>
     
