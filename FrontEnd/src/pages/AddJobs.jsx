@@ -3,7 +3,6 @@ import { AppContext } from '../context/Appcontext';
 import { useNavigate,useParams} from 'react-router-dom';
 import { Navbar } from '../components/Navbar';
 import axios from 'axios';
-import { BlockReason } from 'firebase/vertexai';
 
 // Constants for maintainability
 const LOCATION_FIELDS = ['city', 'area', 'pinCode', 'address'];
