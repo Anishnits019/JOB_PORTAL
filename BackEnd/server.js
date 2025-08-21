@@ -18,16 +18,19 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-// Preflight CORS handler (must come before routers)
+// Handle preflight requests (MUST come before routers)
+app.options('*', cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+}));
 
 // Use CORS middleware for actual requests
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
-  })
-);
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+}));
 
 app.get('/', (req, res) => res.send('Server is Live!'));
 
