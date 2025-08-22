@@ -19,7 +19,7 @@ app.use(cookieParser())
 
 app.use(cors({
   credentials: true,
-  origin: "http://localhost:5173",
+  origin: "https://job-portal-vg3e.vercel.app",
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
 }))
 
