@@ -19,7 +19,7 @@ app.use(cookieParser())
 
 app.use(cors({
   credentials: true,
-  origin: "https://job-portal-vg3e.vercel.app/",
+  origin: "https://job-portal-psgg.vercel.app",
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
 }))
 
