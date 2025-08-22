@@ -19,22 +19,18 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Handle preflight requests (MUST come before routers)
+app.options('*', cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+}));
 
-const whitelist = ["https://job-portal-vg3e.vercel.app"]; // your frontend
-app.use(
-  cors({
-    origin(origin, cb) {
-      // allow same-origin/no-origin (like curl/health checks)
-      if (!origin || whitelist.includes(origin)) return cb(null, true);
-      cb(new Error("Not allowed by CORS"));
-    },
-    methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true, // only if you use cookies/auth
-  })
-);
-// Always let OPTIONS preflights through
-app.options("*", cors());
+// Use CORS middleware for actual requests
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+}));
 
 app.get('/', (req, res) => res.send('Server is Live!'));
 
